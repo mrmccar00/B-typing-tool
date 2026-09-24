@@ -10,9 +10,18 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
-  const responses = await prisma.surveyResponse.findMany({
-    orderBy: { createdAt: "asc" },
-  });
+  let responses;
+  try {
+    responses = await prisma.surveyResponse.findMany({
+      orderBy: { createdAt: "asc" },
+    });
+  } catch (err) {
+    console.error("Failed to load survey responses for export:", err);
+    return NextResponse.json(
+      { error: "We couldn't load responses right now. Please try again in a moment." },
+      { status: 500 }
+    );
+  }
 
   const header = [
     "id",

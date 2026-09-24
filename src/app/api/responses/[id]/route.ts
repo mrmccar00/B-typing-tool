@@ -38,7 +38,11 @@ export async function PATCH(
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
       return NextResponse.json({ error: "Response not found." }, { status: 404 });
     }
-    throw err;
+    console.error("Failed to update self-selected segment:", err);
+    return NextResponse.json(
+      { error: "We couldn't save your answer right now. Please try again." },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ ok: true });

@@ -28,24 +28,36 @@ export async function POST(request: NextRequest) {
     probabilities[r.segmentId] = r.probability;
   }
 
-  const created = await prisma.surveyResponse.create({
-    data: {
-      q28_02: answers.Q28_02,
-      q33: answers.Q33,
-      s01: answers.S01,
-      q23: answers.Q23,
-      q15_01: answers.Q15_01,
-      q28_09: answers.Q28_09,
-      q30: answers.Q30,
-      cvQ21_02: answers.CV_Q21_02,
-      dHhSize: answers.D_HH_Size,
-      q26: answers.Q26,
-      assignedSegmentId: assigned.segmentId,
-      assignedSegmentName: assigned.name,
-      probabilities,
-    },
-    select: { id: true },
-  });
+  try {
+    const created = await prisma.surveyResponse.create({
+      data: {
+        q28_02: answers.Q28_02,
+        q33: answers.Q33,
+        s01: answers.S01,
+        q23: answers.Q23,
+        q15_01: answers.Q15_01,
+        q28_09: answers.Q28_09,
+        q30: answers.Q30,
+        cvQ21_02: answers.CV_Q21_02,
+        dHhSize: answers.D_HH_Size,
+        q26: answers.Q26,
+        assignedSegmentId: assigned.segmentId,
+        assignedSegmentName: assigned.name,
+        probabilities,
+      },
+      select: { id: true },
+    });
 
-  return NextResponse.json({ id: created.id, result: classification });
+    return NextResponse.json({ id: created.id, result: classification });
+  } catch (err) {
+    // Log full detail server-side (visible in Vercel's function logs); the
+    // client only needs to know the save failed, not why. An uncaught
+    // throw here would otherwise crash with an empty response body, which
+    // surfaces client-side as a confusing "Unexpected end of JSON input".
+    console.error("Failed to save survey response:", err);
+    return NextResponse.json(
+      { error: "We couldn't save your response right now. Please try again in a moment." },
+      { status: 500 }
+    );
+  }
 }

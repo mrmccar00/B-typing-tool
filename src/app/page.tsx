@@ -48,9 +48,14 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answers: finalAnswers }),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error ?? "Something went wrong submitting your answers.");
+      // The body may be empty or non-JSON if the server errored before it
+      // could send a proper response - don't let that throw a confusing
+      // raw parse error instead of a readable message.
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data) {
+        throw new Error(
+          data?.error ?? `Something went wrong submitting your answers (status ${res.status}).`
+        );
       }
       setResults(data.result.results);
       setAssignedId(data.result.assignedSegmentId);
