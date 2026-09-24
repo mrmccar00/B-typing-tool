@@ -1,0 +1,11 @@
+export function csvEscape(value: unknown): string {
+  const str = value === null || value === undefined ? "" : String(value);
+  if (/[",\n\r]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
+export function toCsv(rows: unknown[][]): string {
+  return rows.map((row) => row.map(csvEscape).join(",")).join("\r\n");
+}
