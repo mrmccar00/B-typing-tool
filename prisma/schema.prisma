@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SurveyResponse {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+
+  // Raw answers (variable codes match src/lib/questions.ts)
+  q28_02      Int
+  q33         Int
+  s01         Int
+  q23         Int
+  q15_01      Int
+  q28_09      Int
+  q30         Int
+  cvQ21_02    Int
+  dHhSize     Int
+  q26         Int
+
+  // Computed result
+  assignedSegmentId Int
+  assignedSegmentName String
+  probabilities     Json // { [segmentId: string]: number }, sums to 1.0
+
+  // Respondent's own read on which segment fits them, captured on the
+  // reveal screen. Null until they answer the agree/disagree prompt.
+  selfSelectedSegmentId   Int?
+  selfSelectedSegmentName String?
+
+  @@map("survey_responses")
+}
