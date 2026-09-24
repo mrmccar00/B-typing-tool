@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     probabilities[r.segmentId] = r.probability;
   }
 
-  await prisma.surveyResponse.create({
+  const created = await prisma.surveyResponse.create({
     data: {
       q28_02: answers.Q28_02,
       q33: answers.Q33,
@@ -44,7 +44,8 @@ export async function POST(request: NextRequest) {
       assignedSegmentName: assigned.name,
       probabilities,
     },
+    select: { id: true },
   });
 
-  return NextResponse.json({ result: classification });
+  return NextResponse.json({ id: created.id, result: classification });
 }

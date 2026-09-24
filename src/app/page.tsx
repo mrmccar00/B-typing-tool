@@ -20,6 +20,7 @@ export default function Home() {
   const [numberDraft, setNumberDraft] = useState("");
   const [results, setResults] = useState<SegmentResultView[] | null>(null);
   const [assignedId, setAssignedId] = useState<number | null>(null);
+  const [responseId, setResponseId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const question = QUESTIONS[questionIndex];
@@ -53,6 +54,7 @@ export default function Home() {
       }
       setResults(data.result.results);
       setAssignedId(data.result.assignedSegmentId);
+      setResponseId(data.id);
       setStage("results");
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Unknown error.");
@@ -99,6 +101,7 @@ export default function Home() {
   function handleRestart() {
     setResults(null);
     setAssignedId(null);
+    setResponseId(null);
     setErrorMessage(null);
     startSurvey();
   }
@@ -149,8 +152,13 @@ export default function Home() {
         </div>
       )}
 
-      {stage === "results" && results && assignedId !== null && (
-        <ResultsScreen results={results} assignedId={assignedId} onRestart={handleRestart} />
+      {stage === "results" && results && assignedId !== null && responseId && (
+        <ResultsScreen
+          results={results}
+          assignedId={assignedId}
+          responseId={responseId}
+          onRestart={handleRestart}
+        />
       )}
     </main>
   );
@@ -276,24 +284,65 @@ function QuestionScreen({
   );
 }
 
+type Agreement = "unset" | "yes" | "no";
+
 function ResultsScreen({
   results,
   assignedId,
+  responseId,
   onRestart,
 }: {
   results: SegmentResultView[];
   assignedId: number;
+  responseId: string;
   onRestart: () => void;
 }) {
   const top = results.find((r) => r.segmentId === assignedId)!;
   const rest = results.filter((r) => r.segmentId !== assignedId);
+
+  const [agreement, setAgreement] = useState<Agreement>("unset");
+  const [selfSelectedId, setSelfSelectedId] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  async function saveSelfSelection(segmentId: number) {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const res = await fetch(`/api/responses/${responseId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ selfSelectedSegmentId: segmentId }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Couldn't save your answer.");
+      }
+      setSelfSelectedId(segmentId);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleAgree() {
+    setAgreement("yes");
+    saveSelfSelection(assignedId);
+  }
+
+  function handleDisagree() {
+    setAgreement("no");
+  }
+
+  const selfSelectedSegment = results.find((r) => r.segmentId === selfSelectedId);
 
   return (
     <div className="w-full animate-fade-in text-center">
       <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-brand-500">
         Your renter type is
       </p>
-      <div className="mb-8 animate-pop-in rounded-3xl bg-white p-8 shadow-2xl">
+      <div className="mb-6 animate-pop-in rounded-3xl bg-white p-8 shadow-2xl">
         <div className="mb-3 text-6xl">{top.emoji}</div>
         <h2 className="mb-2 text-3xl font-extrabold text-brand-900">{top.name}</h2>
         <p className="mx-auto mb-4 max-w-sm text-brand-700">{top.blurb}</p>
@@ -302,11 +351,71 @@ function ResultsScreen({
         </div>
       </div>
 
+      <div className="mb-8 rounded-3xl bg-white p-6 shadow-lg">
+        {agreement === "unset" && (
+          <>
+            <p className="mb-4 font-medium text-brand-800">Does this feel like you?</p>
+            <div className="flex justify-center gap-3">
+              <button
+                onClick={handleAgree}
+                className="rounded-full bg-brand-600 px-6 py-2 font-semibold text-white shadow hover:bg-brand-700"
+              >
+                Yes, that&rsquo;s me!
+              </button>
+              <button
+                onClick={handleDisagree}
+                className="rounded-full border-2 border-brand-200 px-6 py-2 font-semibold text-brand-700 hover:bg-brand-50"
+              >
+                Not quite
+              </button>
+            </div>
+          </>
+        )}
+
+        {agreement === "yes" && (
+          <p className="font-medium text-brand-700">
+            {saving ? "Saving..." : "Great — thanks for confirming! 🎉"}
+          </p>
+        )}
+
+        {agreement === "no" && !selfSelectedSegment && (
+          <>
+            <p className="mb-4 font-medium text-brand-800">
+              No worries — which one sounds more like you?
+            </p>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {rest.map((segment) => (
+                <button
+                  key={segment.segmentId}
+                  onClick={() => saveSelfSelection(segment.segmentId)}
+                  disabled={saving}
+                  className="rounded-2xl border-2 border-brand-100 px-4 py-3 text-left font-medium transition hover:border-brand-500 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {segment.emoji} {segment.name}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {agreement === "no" && selfSelectedSegment && (
+          <p className="font-medium text-brand-700">
+            Got it — thanks for letting us know you identify more with{" "}
+            <span className="font-bold">
+              {selfSelectedSegment.emoji} {selfSelectedSegment.name}
+            </span>
+            .
+          </p>
+        )}
+
+        {saveError && <p className="mt-3 text-sm text-red-600">{saveError}</p>}
+      </div>
+
       <div className="rounded-3xl bg-white/70 p-6 text-left shadow">
         <h3 className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-brand-500">
           Full probability breakdown
         </h3>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           <ProbabilityBar segment={top} highlighted />
           {rest.map((segment) => (
             <ProbabilityBar key={segment.segmentId} segment={segment} />
@@ -350,6 +459,7 @@ function ProbabilityBar({
           style={{ width: `${Math.max(pct, 1)}%` }}
         />
       </div>
+      <p className="mt-1.5 text-xs text-brand-600">{segment.blurb}</p>
     </div>
   );
 }

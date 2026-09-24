@@ -10,7 +10,8 @@ export type Segment = {
   id: SegmentId;
   name: string;
   emoji: string;
-  // Placeholder blurb - edit freely, it does not affect scoring.
+  // Positive-sounding description shown on the reveal screen, sourced from
+  // Class_B_Segment_Profiles.pdf. Edit freely - it does not affect scoring.
   blurb: string;
   constant: number;
   coefficients: Record<VariableId, number>;
@@ -21,7 +22,8 @@ export const SEGMENTS: Segment[] = [
     id: 1,
     name: "Unfussy Tightknit Crews",
     emoji: "🤝",
-    blurb: "Low-key and social — happiest with a tight circle of people close by.",
+    blurb:
+      "You keep things simple and centered on what matters most: your close friends, your pets, and a home that's easy to enjoy. A private patio, room to host, and a pet-friendly building are what make a place feel like yours.",
     constant: -39.460788809999997,
     coefficients: {
       Q28_02: 2.3210133558999999,
@@ -40,7 +42,8 @@ export const SEGMENTS: Segment[] = [
     id: 2,
     name: "Budget-Bound Homebodies",
     emoji: "🏡",
-    blurb: "Practical and home-focused, mindful of every dollar.",
+    blurb:
+      "You're practical and financially disciplined, prioritizing real value and long-term savings over flash. Renting frees you from ownership costs and hassle, so you can keep building toward the future on your own terms.",
     constant: -31.587605069999999,
     coefficients: {
       Q28_02: 2.5472540103,
@@ -59,7 +62,8 @@ export const SEGMENTS: Segment[] = [
     id: 3,
     name: "Quiet Long-Timers",
     emoji: "🌙",
-    blurb: "Settled, steady, and content to stay put.",
+    blurb:
+      "You've found your rhythm, and you love it: a peaceful, familiar home base where routine and comfort matter more than chasing what's new. A quiet, well-located spot to unwind is really all you need.",
     constant: -34.241813729999997,
     coefficients: {
       Q28_02: 1.9069844333,
@@ -78,7 +82,8 @@ export const SEGMENTS: Segment[] = [
     id: 4,
     name: "Aspirers",
     emoji: "🚀",
-    blurb: "Ambitious and active, always working toward the next milestone.",
+    blurb:
+      "You're ambitious, active, and always moving toward what's next. Your home is fuel for a fitness-driven, socially engaged lifestyle — less a destination, more a launchpad for bigger goals ahead.",
     constant: -43.469468440000003,
     coefficients: {
       Q28_02: 4.3077337909,
@@ -97,7 +102,8 @@ export const SEGMENTS: Segment[] = [
     id: 5,
     name: "Comfortable & Established Renters",
     emoji: "🛋️",
-    blurb: "Financially secure and settled into a comfortable routine.",
+    blurb:
+      "You've built a comfortable, secure life, and you're perfectly content with it. Space, privacy, and the freedom to skip maintenance and repairs let you focus on what actually matters to you.",
     constant: -46.561028380000003,
     coefficients: {
       Q28_02: 2.1924816299,
@@ -116,7 +122,8 @@ export const SEGMENTS: Segment[] = [
     id: 6,
     name: "Stretchers",
     emoji: "🤸",
-    blurb: "Stretching to afford an active, on-trend lifestyle.",
+    blurb:
+      "You go all in on the lifestyle you want: premium finishes, an on-site gym, and a full social calendar. You'd rather invest in living well now, and your home is where that active, connected life comes together.",
     constant: -50.895679090000002,
     coefficients: {
       Q28_02: 5.9094613442,
@@ -135,7 +142,8 @@ export const SEGMENTS: Segment[] = [
     id: 7,
     name: "Family-First Renters",
     emoji: "👨‍👩‍👧",
-    blurb: "Family and home life come first, above all else.",
+    blurb:
+      "Family comes first for you, always. You want practical, functional space for everyone under one roof, without the guesswork or upkeep that comes with owning a home.",
     constant: -35.794134600000003,
     coefficients: {
       Q28_02: 2.5951575495,

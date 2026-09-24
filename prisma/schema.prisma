@@ -28,5 +28,10 @@ model SurveyResponse {
   assignedSegmentName String
   probabilities     Json // { [segmentId: string]: number }, sums to 1.0
 
+  // Respondent's own read on which segment fits them, captured on the
+  // reveal screen. Null until they answer the agree/disagree prompt.
+  selfSelectedSegmentId   Int?
+  selfSelectedSegmentName String?
+
   @@map("survey_responses")
 }

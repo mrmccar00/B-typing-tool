@@ -29,6 +29,8 @@ export async function GET(request: NextRequest) {
     "q26_cooking_style",
     "assigned_segment_id",
     "assigned_segment_name",
+    "self_selected_segment_id",
+    "self_selected_segment_name",
     ...SEGMENTS.map((s) => `prob_${s.name}`),
   ];
 
@@ -49,6 +51,8 @@ export async function GET(request: NextRequest) {
       r.q26,
       r.assignedSegmentId,
       r.assignedSegmentName,
+      r.selfSelectedSegmentId ?? "",
+      r.selfSelectedSegmentName ?? "",
       ...SEGMENTS.map((s) => (probabilities[s.id]?.toFixed(4) ?? "")),
     ];
   });

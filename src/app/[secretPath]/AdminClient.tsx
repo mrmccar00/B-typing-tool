@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export default function AdminPage() {
+export default function AdminClient() {
   const [checking, setChecking] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
@@ -82,7 +82,7 @@ export default function AdminPage() {
         <div className="w-full rounded-2xl bg-white p-6 shadow-lg">
           <p className="mb-4 text-brand-700">
             You&rsquo;re logged in. Export all survey responses (raw answers, assigned
-            segment, and probability breakdown) as a CSV file.
+            segment, self-selected segment, and probability breakdown) as a CSV file.
           </p>
           <a
             href="/api/export"
